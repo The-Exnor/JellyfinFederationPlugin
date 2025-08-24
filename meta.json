@@ -9,6 +9,6 @@
   "configuration": {
     "page": "JellyfinFederationPlugin"
   },
-  "imagePath": "C:/ProgramData/Jellyfin/Server/plugins/JellyfinFederationPlugin/logo.png",
-  "status": "Active"  
+  "imagePath": "C:\\ProgramData\\Jellyfin\\Server\\plugins\\JellyfinFederationPlugin\\logo.png",
+  "status": "Active"
 }

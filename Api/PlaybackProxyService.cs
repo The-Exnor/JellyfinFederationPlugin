@@ -7,6 +7,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using JellyfinFederationPlugin.Library;
+using JellyfinFederationPlugin.Configuration;
 
 namespace JellyfinFederationPlugin.Api
 {
@@ -15,9 +16,9 @@ namespace JellyfinFederationPlugin.Api
         private readonly FederationRequestHandler _requestHandler;
         private readonly ILogger _logger;
 
-        public PlaybackProxyService(FederationRequestHandler _requestHandler, ILogger logger)
+        public PlaybackProxyService(FederationRequestHandler requestHandler, ILogger logger)
         {
-            this._requestHandler = _requestHandler;
+            _requestHandler = requestHandler;
             _logger = logger;
         }
 
@@ -25,14 +26,31 @@ namespace JellyfinFederationPlugin.Api
         {
             if (item.Path.StartsWith("remote://"))
             {
-                var mediaId = item.Path.Replace("remote://", "");
+                var mediaIdWithServerInfo = item.Path.Replace("remote://", "");
+
+                // Parse the remote path to extract server and media ID
+                // Format: "serverUrl|mediaId"
+                var parts = mediaIdWithServerInfo.Split('|');
+                if (parts.Length < 2)
+                {
+                    _logger.LogError($"Invalid remote path format: {item.Path}. Expected format: remote://serverUrl|mediaId");
+                    return null;
+                }
+
+                var serverUrl = parts[0];
+                var mediaId = parts[1];
 
                 if (Guid.TryParse(mediaId, out var mediaGuid))
                 {
-                    var federatedServer = new Configuration.PluginConfiguration.FederatedServer
+                    // Find the federated server from configuration
+                    var config = Plugin.Instance.Configuration;
+                    var federatedServer = config.FederatedServers.FirstOrDefault(s => s.ServerUrl == serverUrl);
+
+                    if (federatedServer == null)
                     {
-                        ServerUrl = mediaId
-                    };
+                        _logger.LogError($"Federated server not found in configuration: {serverUrl}");
+                        return null;
+                    }
 
                     var federatedLibraryItems = await _requestHandler.GetFederatedLibrary(federatedServer);
 
@@ -41,7 +59,9 @@ namespace JellyfinFederationPlugin.Api
                         var federatedItem = federatedLibraryItems.FirstOrDefault(x => x.Id == mediaGuid);
                         if (federatedItem != null)
                         {
-                            var streamUrl = $"{federatedServer.ServerUrl}/Items/{federatedItem.Id}/Playback";
+                            // Include port in URL construction if specified
+                            var baseUrl = federatedServer.Port > 0 ? $"{federatedServer.ServerUrl}:{federatedServer.Port}" : federatedServer.ServerUrl;
+                            var streamUrl = $"{baseUrl}/Items/{federatedItem.Id}/Playback";
 
                             return new StreamInfo
                             {
@@ -56,6 +76,10 @@ namespace JellyfinFederationPlugin.Api
                                     MaxStreamingBitrate = 100000000
                                 }
                             };
+                        }
+                        else
+                        {
+                            _logger.LogWarning($"Federated item not found with ID: {mediaGuid} on server: {serverUrl}");
                         }
                     }
                 }

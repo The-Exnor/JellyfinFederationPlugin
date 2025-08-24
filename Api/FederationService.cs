@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+using JellyfinFederationPlugin.Configuration;
 
 namespace JellyfinFederationPlugin
 {
@@ -11,8 +12,6 @@ namespace JellyfinFederationPlugin
     {
         private readonly HttpClient _httpClient;
         private readonly ILogger _logger;
-
-        private readonly List<FederatedServer> _federatedServers = new List<FederatedServer>();
 
         public FederationService(HttpClient httpClient, ILogger logger)
         {
@@ -23,13 +22,16 @@ namespace JellyfinFederationPlugin
         public async Task<List<MediaItem>> GetFederatedMediaAsync(string libraryName)
         {
             var mediaItems = new List<MediaItem>();
+            var config = Plugin.Instance.Configuration;
 
-            foreach (var server in _federatedServers)
+            foreach (var server in config.FederatedServers)
             {
                 try
                 {
-                    var url = $"{server.Url}/Libraries/{libraryName}/Items?api_key={server.ApiKey}";
-                    _logger.LogInformation($"Fetching media from federated server: {server.Url}");
+                    // Include port in URL construction if specified
+                    var baseUrl = server.Port > 0 ? $"{server.ServerUrl}:{server.Port}" : server.ServerUrl;
+                    var url = $"{baseUrl}/Libraries/{libraryName}/Items?api_key={server.ApiKey}";
+                    _logger.LogInformation($"Fetching media from federated server: {server.ServerUrl}");
 
                     var response = await _httpClient.GetAsync(url);
 
@@ -41,39 +43,16 @@ namespace JellyfinFederationPlugin
                     }
                     else
                     {
-                        _logger.LogWarning($"Failed to fetch media from {server.Url}. Status Code: {response.StatusCode}");
+                        _logger.LogWarning($"Failed to fetch media from {server.ServerUrl}. Status Code: {response.StatusCode}");
                     }
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"Error fetching media from {server.Url}: {ex.Message}");
+                    _logger.LogError($"Error fetching media from {server.ServerUrl}: {ex.Message}");
                 }
             }
 
             return mediaItems;
-        }
-
-        public void AddFederatedServer(string url, string apiKey)
-        {
-            _federatedServers.Add(new FederatedServer
-            {
-                Url = url,
-                ApiKey = apiKey
-            });
-
-            _logger.LogInformation($"Added federated server: {url}");
-        }
-
-        public void RemoveFederatedServer(string url)
-        {
-            _federatedServers.RemoveAll(s => s.Url == url);
-            _logger.LogInformation($"Removed federated server: {url}");
-        }
-
-        public class FederatedServer
-        {
-            public string Url { get; set; }
-            public string ApiKey { get; set; }
         }
 
         public class MediaItem
