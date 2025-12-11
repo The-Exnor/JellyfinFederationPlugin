@@ -1,1 +1,0 @@
-// File removed - functionality integrated into Plugin.cs

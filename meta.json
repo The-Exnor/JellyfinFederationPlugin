@@ -1,14 +1,13 @@
 {
-  "category": "General",
+  "guid": "12345678-1234-1234-1234-123456789abc",
+  "name": "Jellyfin Federation",
+  "description": "Aggregate content from multiple Jellyfin servers into unified virtual libraries",
+  "overview": "The Jellyfin Federation Plugin allows you to create a unified media library by aggregating content from multiple remote Jellyfin servers. Stream content from any server without file synchronization.",
   "owner": "Angablade",
-  "name": "JellyfinFederationPlugin",
-  "version": "1.0.0",
-  "guid": "ab6fad0e-ffcb-469c-b1b0-b11f79ddf447",
-  "description": "Enables federation across Jellyfin servers for streaming media without syncing files.",
-  "plugin": "JellyfinFederationPlugin.Plugin, JellyfinFederationPlugin",
-  "configuration": {
-    "page": "JellyfinFederationPlugin"
-  },
-  "imagePath": "C:\\ProgramData\\Jellyfin\\Server\\plugins\\JellyfinFederationPlugin\\logo.png",
-  "status": "Active"
+  "category": "General",
+  "version": "1.0.0.0",
+  "changelog": "Initial release - Multi-server content aggregation, virtual libraries, remote streaming",
+  "targetAbi": "10.10.0.0",
+  "timestamp": "2025-01-28T00:00:00Z",
+  "imageUrl": "thumb.png"
 }
