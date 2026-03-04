@@ -6,6 +6,12 @@ No alteration to the code has been made.
 Neither me or the author take any responsibility from the usage of this code !  
 
 
+Usage:
+
+Copy all the files in the latest release  to the following directory »  /var/lib/jellyfin/plugins/JellyfinFederationPlugin/
+
+Restart Jellyfin server and configure the plugin via dashboard.
+
 
 License:
 
