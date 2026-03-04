@@ -1,10 +1,14 @@
-Forked from Anglablade work.
+This Jellyfin plugin allows multiple Jellyfin servers to federate, sharing media libraries in real-time without syncing or copying files.
+Media can be streamed from one server to another with live transcoding if necessary.
 
+Forked from Anglablade work.
 No alteration to the code has been made.
 
+.
 
-Neither me or the author take any responsibility from the usage of this code !  
+!! Neither me or the author take any responsibility from the usage of this code !!  
 
+.
 
 Usage:
 
@@ -12,9 +16,9 @@ Copy all the files in the latest release  to the following directory »  /var/li
 
 Restart Jellyfin server and configure the plugin via dashboard.
 
+.
 
 License:
-
 
 MIT License
 
